@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMate AI Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .chat-container {
+            height: calc(100vh - 200px);
+        }
+        .message-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-bubble {
+            background-color: #e2f5fc;
+            border-radius: 18px 18px 0 18px;
+        }
+        .ai-bubble {
+            background-color: #f0f0f0;
+            border-radius: 18px 18px 18px 0;
+        }
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .bg-gradient {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .sudoku-cell {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #ccc;
+        }
+        .sudoku-cell-fixed {
+            background-color: #f0f0f0;
+        }
+        .sidebar-nav {
+            height: calc(100vh - 80px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-md sidebar-nav">
+            <div class="px-6 py-4">
+                <h1 class="text-2xl font-bold text-indigo-600">EduMate AI</h1>
+                <p class="text-gray-600 text-sm">Your learning assistant</p>
+            </div>
+            <nav class="mt-6">
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all active-nav" id="chat-nav">
+                    <i class="fas fa-comment-dots mr-3"></i>
+                    <span>Chat</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all" id="study-nav">
+                    <i class="fas fa-book-open mr-3"></i>
+                    <span>Study Resources</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all" id="quiz-nav">
+                    <i class="fas fa-question-circle mr-3"></i>
+                    <span>Quiz</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all" id="games-nav">
+                    <i class="fas fa-gamepad mr-3"></i>
+                    <span>Brain Games</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all" id="media-nav">
+                    <i class="fas fa-music mr-3"></i>
+                    <span>Media Suggestions</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all" id="emotion-nav">
+                    <i class="fas fa-smile mr-3"></i>
+                    <span>Emotion Analysis</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Header -->
+            <header class="bg-white shadow-sm p-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-800" id="page-title">Chat with EduMate AI</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition">
+                            <i class="fas fa-cog mr-1"></i> Settings
+                        </button>
+                        <button class="px-4 py-2 bg-gradient text-white rounded-md hover:opacity-90 transition">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-6 overflow-auto">
+                <!-- Chat Section -->
+                <div id="chat-section" class="h-full flex flex-col">
+                    <div class="chat-container overflow-y-auto mb-4 bg-white rounded-lg shadow p-4">
+                        <div id="chat-messages" class="space-y-4">
+                            <div class="flex justify-start">
+                                <div class="message-bubble ai-bubble p-3 shadow-sm">
+                                    <p>Hello! I'm EduMate AI, your personal learning assistant. How can I help you today?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        <div class="flex space-x-2">
+                            <input type="text" id="user-input" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your message...">
+                            <button id="send-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                <i class="fas fa-paper-plane mr-1"></i> Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Resources Section -->
+                <div id="study-section" class="h-full hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-semibold mb-4">Find Study Resources</h3>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2">What subject are you studying?</label>
+                            <input type="text" id="study-topic" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Mathematics, History, Physics">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2">Any specific topic?</label>
+                            <input type="text" id="study-subtopic" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Calculus, World War II, Quantum Mechanics">
+                        </div>
+                        <button id="find-videos-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                            <i class="fas fa-search mr-1"></i> Find Videos
+                        </button>
+                        <div id="video-results" class="mt-6 hidden">
+                            <h4 class="text-lg font-semibold mb-2">Recommended Videos:</h4>
+                            <div id="video-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Section -->
+                <div id="quiz-section" class="h-full hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-semibold mb-4">Test Your Knowledge</h3>
+                        <div id="quiz-start">
+                            <div class="mb-6">
+                                <label class="block text-gray-700 mb-2">Select a Topic:</label>
+                                <select id="quiz-topic" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="" disabled selected>Choose a topic</option>
+                                </select>
+                            </div>
+                            <button id="start-quiz-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                <i class="fas fa-play mr-1"></i> Start Quiz
+                            </button>
+                        </div>
+                        <div id="quiz-question" class="hidden">
+                            <h4 id="question-text" class="text-lg font-semibold mb-4"></h4>
+                            <div id="options-list" class="space-y-2 mb-6"></div>
+                            <button id="submit-answer-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                <i class="fas fa-check mr-1"></i> Submit Answer
+                            </button>
+                        </div>
+                        <div id="quiz-result" class="hidden">
+                            <div id="result-message" class="p-4 rounded-lg mb-4"></div>
+                            <button id="next-question-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                <i class="fas fa-arrow-right mr-1"></i> Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brain Games Section -->
+                <div id="games-section" class="h-full hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-semibold mb-4">Brain Games</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gradient to-indigo-600 rounded-lg p-6 text-white">
+                                <h4 class="text-lg font-semibold mb-2">Sudoku</h4>
+                                <p class="mb-4">Challenge your logical thinking with a game of Sudoku.</p>
+                                <button id="start-sudoku-btn" class="bg-white text-indigo-600 px-6 py-2 rounded-lg hover:bg-gray-100 transition">
+                                    <i class="fas fa-play mr-1"></i> Play Now
+                                </button>
+                            </div>
+                            <div class="bg-gradient to-indigo-600 rounded-lg p-6 text-white">
+                                <h4 class="text-lg font-semibold mb-2">Memory Challenge</h4>
+                                <p class="mb-4">Test and improve your memory skills.</p>
+                                <button id="start-memory-btn" class="bg-white text-indigo-600 px-6 py-2 rounded-lg hover:bg-gray-100 transition">
+                                    <i class="fas fa-play mr-1"></i> Play Now
+                                </button>
+                            </div>
+                        </div>
+                        <div id="sudoku-game" class="mt-6 hidden">
+                            <h4 class="text-lg font-semibold mb-2">Sudoku Puzzle</h4>
+                            <div id="sudoku-board" class="mb-4 inline-block"></div>
+                            <div class="flex space-x-3">
+                                <button id="check-sudoku-btn" class="btn-primary text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-check mr-1"></i> Check Solution
+                                </button>
+                                <button id="new-sudoku-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                                    <i class="fas fa-sync mr-1"></i> New Puzzle
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Suggestions Section -->
+                <div id="media-section" class="h-full hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-semibold mb-4">Media Suggestions</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border border-gray-200 rounded-lg p-6">
+                                <h4 class="text-lg font-semibold mb-2">Music Suggestions</h4>
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 mb-2">Select a genre (optional):</label>
+                                    <select id="music-genre" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="">Based on my mood</option>
+                                        <option value="study">Study Focus</option>
+                                        <option value="relax">Relaxation</option>
+                                        <option value="energetic">Energetic</option>
+                                        <option value="classical">Classical</option>
+                                        <option value="jazz">Jazz</option>
+                                    </select>
+                                </div>
+                                <button id="suggest-songs-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                    <i class="fas fa-music mr-1"></i> Suggest Songs
+                                </button>
+                                <div id="songs-results" class="mt-4 hidden">
+                                    <h5 class="font-medium text-gray-700 mb-2">Based on your <span id="song-emotion"></span>:</h5>
+                                    <div id="songs-list" class="space-y-2"></div>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-6">
+                                <h4 class="text-lg font-semibold mb-2">Video Recommendations</h4>
+                                <p class="text-gray-600 mb-4">Get video recommendations based on your recent conversations and mood.</p>
+                                <button id="suggest-videos-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                                    <i class="fas fa-video mr-1"></i> Suggest Videos
+                                </button>
+                                <div id="videos-results" class="mt-4 hidden">
+                                    <h5 class="font-medium text-gray-700 mb-2">Based on your <span id="video-emotion"></span>:</h5>
+                                    <div id="videos-list" class="space-y-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emotion Analysis Section -->
+                <div id="emotion-section" class="h-full hidden">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-xl font-semibold mb-4">Emotion Analysis</h3>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2">Enter some text to analyze:</label>
+                            <textarea id="emotion-text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 h-32" placeholder="Type something to analyze how you're feeling..."></textarea>
+                        </div>
+                        <button id="analyze-emotion-btn" class="btn-primary text-white px-6 py-2 rounded-lg">
+                            <i class="fas fa-heart mr-1"></i> Analyze Emotions
+                        </button>
+                        <div id="emotion-results" class="mt-6 hidden">
+                            <h4 class="text-lg font-semibold mb-2">Analysis Results</h4>
+                            <div class="p-4 bg-gray-50 rounded-lg">
+                                <p class="mb-2">Primary emotion: <span id="primary-emotion" class="font-semibold"></span></p>
+                                <div id="emotion-chart" class="mt-4">
+                                    <div class="space-y-3">
+                                        <div id="emotion-bars"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
